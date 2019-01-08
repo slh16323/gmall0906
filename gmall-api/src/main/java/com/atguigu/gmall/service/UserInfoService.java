@@ -1,6 +1,7 @@
-package com.atguigu.gmall.usermanage.service;
+package com.atguigu.gmall.service;
 
-import com.atguigu.gmall.usermanage.bean.UserInfo;
+
+import com.atguigu.gmall.bean.UserInfo;
 
 import java.util.List;
 

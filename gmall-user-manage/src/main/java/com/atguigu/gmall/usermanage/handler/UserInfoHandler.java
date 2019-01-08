@@ -1,8 +1,8 @@
 package com.atguigu.gmall.usermanage.handler;
 
 
-import com.atguigu.gmall.usermanage.bean.UserInfo;
-import com.atguigu.gmall.usermanage.service.UserInfoService;
+import com.atguigu.gmall.bean.UserInfo;
+import com.atguigu.gmall.service.UserInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,8 +17,9 @@ public class UserInfoHandler {
     @RequestMapping("user/list")
     public List<UserInfo> getAllUser() {
 
-       List<UserInfo> userInfos = userInfoService.getUserList();
+        List<UserInfo> userInfos = userInfoService.getUserList();
 
         return userInfos;
     }
+
 }
