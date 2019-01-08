@@ -1,6 +1,8 @@
 package com.atguigu.gmall.bean;
 
-public class UserInfo {
+import java.io.Serializable;
+
+public class UserInfo implements Serializable {
     private String id;
     private String loginName;
     private String nickName;
@@ -88,14 +90,17 @@ public class UserInfo {
     }
 
     public void setHeadImg(String headImg) {
+
         this.headImg = headImg;
     }
 
     public String getUserLevel() {
+
         return userLevel;
     }
 
     public void setUserLevel(String userLevel) {
+
         this.userLevel = userLevel;
     }
 }
