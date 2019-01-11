@@ -1,21 +1,15 @@
 package com.atguigu.gmall.manage.service.impl;
 
 import com.alibaba.dubbo.config.annotation.Service;
-import com.atguigu.gmall.bean.BaseAttrInfo;
-import com.atguigu.gmall.bean.BaseCatalog1;
-import com.atguigu.gmall.bean.BaseCatalog2;
-import com.atguigu.gmall.bean.BaseCatalog3;
-import com.atguigu.gmall.manage.mapper.BaseAttrInfoMapper;
-import com.atguigu.gmall.manage.mapper.BaseCatalog1Mapper;
-import com.atguigu.gmall.manage.mapper.BaseCatalog2Mapper;
-import com.atguigu.gmall.manage.mapper.BaseCatalog3Mapper;
+import com.atguigu.gmall.bean.*;
+import com.atguigu.gmall.manage.mapper.*;
 import com.atguigu.gmall.service.AttrManageService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
 @Service
-public class AttrManageServiceImpl implements AttrManageService  {
+public class AttrManageServiceImpl implements AttrManageService {
 
     @Autowired
     private BaseCatalog1Mapper baseCatalog1Mapper;
@@ -28,6 +22,9 @@ public class AttrManageServiceImpl implements AttrManageService  {
 
     @Autowired
     private BaseAttrInfoMapper baseAttrInfoMapper;
+
+    @Autowired
+    private BaseAttrValueMapper baseAttrValueMapper;
 
     @Override
     public List<BaseCatalog1> getCatalog1() {
@@ -44,7 +41,7 @@ public class AttrManageServiceImpl implements AttrManageService  {
 
         return baseCatalog2s;
 
-        
+
     }
 
     @Override
@@ -68,5 +65,70 @@ public class AttrManageServiceImpl implements AttrManageService  {
         List<BaseAttrInfo> baseAttrInfos = baseAttrInfoMapper.select(baseAttrInfo);
 
         return baseAttrInfos;
+    }
+
+    @Override
+    public void savaAttr(BaseAttrInfo baseAttrInfo) {
+
+        //如果有主键就进行更新，如果没有就插入
+        if (baseAttrInfo.getId() != null && baseAttrInfo.getId().length() > 0) {
+            baseAttrInfoMapper.updateByPrimaryKey(baseAttrInfo);
+        } else {
+
+            //只持久化对象中有值属性
+            baseAttrInfoMapper.insertSelective(baseAttrInfo);
+        }
+        //把原属性值全部清空
+        BaseAttrValue baseAttrValue4Del = new BaseAttrValue();
+        baseAttrValue4Del.setAttrId(baseAttrInfo.getId());
+        baseAttrValueMapper.delete(baseAttrValue4Del);
+
+        //获取属性的id
+        String baseAttrInfoId = baseAttrInfo.getId();
+        //获取属性值得list集合
+        List<BaseAttrValue> attrValueList = baseAttrInfo.getAttrValueList();
+
+        if (baseAttrInfo.getAttrValueList() != null && baseAttrInfo.getAttrValueList().size() > 0) {
+            //循环遍历属性值列表，进行插入
+            for (BaseAttrValue baseAttrValue : attrValueList) {
+
+                //防止主键被赋上一个空字符串
+                if (baseAttrValue.getId() != null && baseAttrValue.getId().length() == 0) {
+                    baseAttrValue.setId(null);
+                }
+
+                //设置属性值对应的属性id
+                baseAttrValue.setAttrId(baseAttrInfoId);
+                //插入属性值
+                baseAttrValueMapper.insertSelective(baseAttrValue);
+            }
+        }
+
+    }
+
+    @Override
+    public List<BaseAttrValue> getAttrValueList(String attrId) {
+
+        BaseAttrValue baseAttrValue = new BaseAttrValue();
+
+        baseAttrValue.setAttrId(attrId);
+
+        List<BaseAttrValue> baseAttrValues = baseAttrValueMapper.select(baseAttrValue);
+
+        return baseAttrValues;
+    }
+
+    @Override
+    public void deleteAttr(BaseAttrInfo baseAttrInfo) {
+
+
+        BaseAttrValue baseAttrValue = new BaseAttrValue();
+
+        String attrId = baseAttrInfo.getId();
+        baseAttrValue.setAttrId(attrId);
+        baseAttrValueMapper.delete(baseAttrValue);
+
+        baseAttrInfoMapper.delete(baseAttrInfo);
+
     }
 }

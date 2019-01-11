@@ -1,25 +1,27 @@
 package com.atguigu.gmall.bean;
 
-public class UserAddress {
+import javax.persistence.Column;
+import javax.persistence.Id;
+import java.io.Serializable;
 
+/**
+ * @param
+ * @return
+ */
+public class UserAddress implements Serializable {
+    @Column
+    @Id
     private String id;
+    @Column
     private String userAddress;
+    @Column
     private String userId;
+    @Column
     private String consignee;
+    @Column
     private String phoneNum;
+    @Column
     private String isDefault;
-
-    public UserAddress() {
-    }
-
-    public UserAddress(String id, String userAddress, String userId, String consignee, String phoneNum, String isDefault) {
-        this.id = id;
-        this.userAddress = userAddress;
-        this.userId = userId;
-        this.consignee = consignee;
-        this.phoneNum = phoneNum;
-        this.isDefault = isDefault;
-    }
 
     public String getId() {
         return id;

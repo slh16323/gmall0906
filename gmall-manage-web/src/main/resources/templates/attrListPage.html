@@ -5,57 +5,239 @@
     <title>Title</title>
 </head>
 <body>
-    <table id="dg" class="easyui-datagrid" title="属性列表"
-           data-options="toolbar:'#tb',singleSelect:true,collapsible:true,url:'datagrid_data1.json',method:'get'">
-        <thead>
-        <tr>
-            <th data-options="field:'id'" width="20%">平台属性id</th>
-            <th data-options="field:'attrName'" width="80%">平台属性值</th>
-        </tr>
-        </thead>
-    </table>
-    <div id="tb" style="padding:5px;height:auto">
-        <div style="margin-bottom:5px">
-            <a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true">添加</a>
-            <a href="#" class="easyui-linkbutton" iconCls="icon-edit" plain="true">编辑</a>
-            <a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true">删除</a>
-        </div>
-        <div>
-            一级分类：
-            <select id="ctg1ForAttrList" class="easyui-combobox" style="width:100px"
-                    data-options="url:'getCatalog1',textField:'name',valueField:'id',
+<table id="dg" class="easyui-datagrid" title="属性列表"
+       data-options="toolbar:'#tb',singleSelect:true,collapsible:true,url:'datagrid_data1.json',method:'get'">
+    <thead>
+    <tr>
+        <th data-options="field:'id'" width="20%">平台属性id</th>
+        <th data-options="field:'attrName'" width="80%">平台属性值</th>
+    </tr>
+    </thead>
+</table>
+<div id="tb" style="padding:5px;height:auto">
+    <div style="margin-bottom:5px">
+        <a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="addAttrInfo()">添加</a>
+        <a href="#" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="editAttrInfo()">编辑</a>
+        <a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="deleteAttrInfo()">删除</a>
+    </div>
+    <div>
+        一级分类：
+        <select id="ctg1ForAttrList" class="easyui-combobox" style="width:100px"
+                data-options="url:'getCatalog1',textField:'name',valueField:'id',
                     onSelect: function(rec){
                     var url = 'getCatalog2?catalog1Id='+rec.id;
                     $('#ctg2ForAttrList').combobox('clear');
                     $('#ctg2ForAttrList').combobox('reload', url);
                     }">
-            </select>
-            二级分类：
-            <select name="ctg2ForAttrList" id="ctg2ForAttrList" class="easyui-combobox" style="width:100px"
-                    data-options="textField:'name',valueField:'id',
+        </select>
+        二级分类：
+        <select name="ctg2ForAttrList" id="ctg2ForAttrList" class="easyui-combobox" style="width:100px"
+                data-options="textField:'name',valueField:'id',
                     onSelect: function(rec){
                     var url = 'getCatalog3?catalog2Id='+rec.id;
                     $('#ctg3ForAttrList').combobox('clear');
                     $('#ctg3ForAttrList').combobox('reload', url);
                     }">
-            </select>
-            三级分类：
-            <select name="ctg3ForAttrList" id="ctg3ForAttrList" class="easyui-combobox" style="width:100px"
-                    data-options="textField:'name',valueField:'id'"
-            ></select>
-            <a href="#" class="easyui-linkbutton" iconCls="icon-search" onclick="javascript:reloadAttrList()">刷新属性列表</a>
-        </div>
+        </select>
+        三级分类：
+        <select name="ctg3ForAttrList" id="ctg3ForAttrList" class="easyui-combobox" style="width:100px"
+                data-options="textField:'name',valueField:'id'"
+        ></select>
+        <a href="#" class="easyui-linkbutton" iconCls="icon-search" onclick="javascript:reloadAttrList()">刷新属性列表</a>
     </div>
-    <script lang="javascript">
-        function reloadAttrList() {
+    <div id="dlg" class="easyui-dialog" title="编辑属性" style="width:600px;height:500px;"
+         closed="true" data-options="iconCls:'icon-save',resizable:true,modal:true" buttons="#bb">
+        <form id="attrForm">
+            <br/>
+            <label>属性名称:</label>
+            <input id="attrName" name="attrName" class="easyui-textbox" data-options="" style="width:100px"/>
+            <input id="attrId" name="attrId" type="hidden"/>
+            <br/><br/>
+            <table id="dg_av" class="easyui-datagrid" title="属性值列表"></table>
+        </form>
+    </div>
+    <div id="bb">
+        <a href="#" class="easyui-linkbutton" onclick="saveAttr()">保存</a>
+        <a href="javascript:close()" class="easyui-linkbutton">关闭</a>
+    </div>
+</div>
+<script lang="javascript">
 
-            var ctg3val = $("#ctg3ForAttrList").combobox('getValue');
 
-            $("#dg").datagrid({
-                url:'getAttrList?catalog3Id='+ctg3val
-            });
+    function close() {
+        $("#dlg").dialog("close");
+    }
 
+    function saveAttr() {
+
+        //创建一个对象存储页面上添加的属性
+        var attrJSON = {};
+
+        var catalog3Id = $("#ctg3ForAttrList").combobox("getValue");
+
+        //获取页面上添加的属性数据
+        var attrName = $("#attrName").textbox("getValue");
+        attrJSON["attrName"] = attrName;
+        attrJSON["catalog3Id"] = catalog3Id;
+        attrJSON["id"]=$("#attrId").val();
+        var rows = $("#dg_av").datagrid("getRows");
+        $(rows).each(function (i, row) {
+            attrJSON["attrValueList[" + i + "].valueName"] = row.valueName;
+
+        });
+
+        // 将属性数据通过ajax异步上传到后台
+        $.post("saveAttr", attrJSON, function (data) {
+
+            //关闭dialog
+            $("#dlg").dialog("close")
+            //重新加载属性列表
+            $("#dg").datagrid("reload");
+            alert(data);
+        })
+
+    }
+
+    function initAttrValueDatagrid() {
+        $('#dg_av').datagrid('loadData', {total: 0, rows: []});
+        datagrid = $("#dg_av").datagrid({
+            columns: [
+                [
+                    {
+                        field: 'id', title: '编号', width: '20%'
+                    },
+                    {
+                        field: 'valueName', title: '属性值名称', width: '80%',
+                        editor: {
+                            type: 'validatebox',
+                            options: {required: true}
+                        }
+                    }
+                ]
+            ],
+            toolbar: [
+                {
+                    text: '添加', iconCls: 'icon-add',
+                    handler: function () {
+                        $("#dg_av").datagrid('appendRow', {id: '', valueName: '添加属性值'});
+                    }
+                },
+                '_',
+                {
+                    text: '删除', iconCls: 'icon-remove',
+                    handler: function () {
+                        //获取选中的行
+                        var row = $("#dg_av").datagrid('getSelected');
+                        if (row) {
+                            //获取行索引
+                            var rowIndex = $("#dg_av").datagrid('getRowIndex', row);
+                            //根据行索引删除行
+                            $("#dg_av").datagrid('deleteRow', rowIndex);
+                        }
+                    }
+                }
+            ],
+            onDblClickRow: function (rowIndex, rowData) {
+                //双击开启编辑状态
+                $("#dg_av").datagrid("beginEdit", rowIndex);
+                //获取编辑后的值
+                var valueName = rowData.valueName;
+                // alert(valueName);
+                //失去焦点后，将值保存在输入框中，并退出编辑状态
+                $("input.datagrid-editable-input").val(valueName).bind("blur", function (evt) {
+                    $("#dg_av").datagrid('endEdit', rowIndex);
+                });
+            }
+
+        });
+
+
+    }
+
+    function addAttrInfo() {
+
+        if (!checkBeforeDialog()) {
+            return;
         }
-    </script>
+        //添加前，将前一次的数据清空
+        $("#attrId").val("");
+        $("#attrName").textbox('clear');
+        $('#dg_av').datagrid({url: ''});
+
+        //打开对话框
+        $("#dlg").dialog("open");
+
+        //初始化对话框
+        initAttrValueDatagrid();
+    }
+
+    function editAttrInfo() {
+        if (!checkBeforeDialog()) {
+            return;
+        }
+        //初始化datagrid
+        initAttrValueDatagrid();
+        //进入页面前加载数据
+        var attrInfoRow = $("#dg").datagrid("getSelected");
+        //获取选中的属性id
+        var attrId = attrInfoRow.id;
+        //获取属性名称
+        var attrName = attrInfoRow.attrName;
+        //发送请求获取数据
+        $('#dg_av').datagrid({url: 'getAttrValueList?attrId=' + attrId});
+        $("#attrId").val(attrInfoRow.id);
+        $("#attrName").textbox('setValue', attrName);
+
+        //弹出编辑框
+        $("#dlg").dialog("open");
+    }
+
+    function deleteAttrInfo() {
+        if (!checkBeforeDialog()) {
+            return;
+        }
+        var attrInfoRow = $("#dg").datagrid("getSelected");
+        //获取选中的属性id
+        var attrId = attrInfoRow.id;
+        //获取属性名称
+        var attrName = attrInfoRow.attrName;
+        $.messager.confirm('确认','您确认想要删除【'+attrName+'】这个平台属性吗？',function(r){
+            if (r){
+                var attrJSON1 ={};
+                attrJSON1["id"]=attrId;
+                //alert(attrJSON1.id);
+                // 将属性数据通过ajax异步上传到后台
+                $.post("deleteAttr", attrJSON1, function (data) {
+                    //重新加载属性列表
+                    $("#dg").datagrid("reload");
+                    alert(data);
+                })
+            }
+        });
+
+    }
+
+    function checkBeforeDialog() {
+        //获取当前被选择的三级分类
+        var ctg3val = $("#ctg3ForAttrList").combobox('getValue');
+
+        if (ctg3val == '') {
+            $.messager.alert('警告', '请先选择三级分类', 'warning');
+            return false;
+        }
+        return true;
+    }
+
+    function reloadAttrList() {
+
+        //获取当前被选择的三级分类
+        var ctg3val = $("#ctg3ForAttrList").combobox('getValue');
+
+        //根据三级分类刷新属性列表
+        $("#dg").datagrid({
+            url: 'getAttrList?catalog3Id=' + ctg3val
+        });
+    }
+</script>
 </body>
 </html>
