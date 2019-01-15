@@ -46,7 +46,7 @@
                    onclick="addSpuSaleAttr()" plain="true">添加销售属性</a>
                 <a href="#" id="spuSaleAttrEditBtn" class="easyui-linkbutton" iconCls="icon-edit" plain="true"
                    onclick="editSpuSaleAttr()">编辑销售属性</a>
-                <a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true">删除</a>
+                <a onclick="deleteSpuSaleAttr()" href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true">删除</a>
             </div>
         </div>
 
@@ -60,6 +60,19 @@
     <a href="#" class="easyui-linkbutton" onclick="closeSpu()">关 闭</a>
 </div>
 <script language="JavaScript">
+
+    function deleteImg() {
+        var row = $("#spuImgDg").datagrid('getSelected')
+        var rowIndex = $("#spuImgDg").datagrid("getRowIndex", row);
+        $("#spuImgDg").datagrid("deleteRow", rowIndex);
+    }
+
+    function deleteSpuSaleAttr() {
+        var row = $("#spuSaleAttrDg").datagrid('getSelected')
+        var rowIndex = $("#spuSaleAttrDg").datagrid("getRowIndex", row);
+        $("#spuSaleAttrDg").datagrid("deleteRow", rowIndex);
+    }
+    
     function closeSpu() {
         $("#spu_dlg").dialog('close');
     }

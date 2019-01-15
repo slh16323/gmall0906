@@ -20,7 +20,7 @@ public class SkuController {
     @ResponseBody
     public String savaSku(SkuInfo skuInfo){
 
-        //skuInfoService.savaSku(skuInfo);
+        skuInfoService.savaSku(skuInfo);
 
         return "success";
     }

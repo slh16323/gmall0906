@@ -64,11 +64,20 @@
 
         var skuJson = {};
         //封装sku基本信息
+        var spu = $("#spulist_dg").datagrid('getSelected');
+        var spuId = spu.id;
+        //　获得三级分类id
+        var catalog3Id = $("#ctg3ForSpuList").combobox("getValue");
+        if(!catalog3Id){
+            catalog3Id = '61';
+        }
+
         var skuName = $("#skuName").textbox("getValue");
         var price = $("#price").numberbox("getValue");
         var weight = $("#weight").numberbox("getValue");
         var skuDesc = $("#skuDesc").textbox("getValue");
-
+        skuJson["spuId"] = spuId
+        skuJson["catalog3Id"] = catalog3Id;
         skuJson["skuName"] = skuName;
         skuJson["price"] = price;
         skuJson["weight"] = weight;
@@ -78,20 +87,16 @@
         var spans = $("#attrInfoGroup").children("span");
         $(spans).each(function (i, attr) {
             var attrId = $(attr).attr("attrId");
-            var catalog3Id = $(attr).attr("catalog3Id");
-            skuJson["catalog3Id"] = catalog3Id;
             skuJson["skuAttrValueList["+i+"].attrId"] = attrId;
-            skuJson["skuAttrValueList["+i+"].valueId"] = $(spans).children("select").val();
+            skuJson["skuAttrValueList["+i+"].valueId"] = $(attr).children("select").val();
         });
 
         //获取销售属性id的集合
         var saleSpans = $("#spuSaleAttrGroup").children("span");
         $(saleSpans).each(function (i, salaAttr) {
-            var spuId = $(salaAttr).attr("spuId");
-            skuJson["spuId"] = spuId;
-            var saleAttrId = $(salaAttr).attr("salaAttr");
+            var saleAttrId = $(salaAttr).attr("saleAttrId");
             skuJson["skuSaleAttrValueList["+i+"].saleAttrId"] = saleAttrId;
-            skuJson["skuSaleAttrValueList["+i+"].saleAttrValueId"] = $(saleSpans).children("select").val();
+            skuJson["skuSaleAttrValueList["+i+"].saleAttrValueId"] = $(salaAttr).children("select").val();
 
             //封装销售属性名称和销售属性值
             var saleAttrName = $(salaAttr).attr("saleAttrName");
@@ -104,27 +109,23 @@
 
         //封装图片信息
         var skuImgs = $("#skuImgDg").datagrid("getChecked");
+        //默认图片设置
+        var defaultImg = $("input[name='isDefault']:checked").val();
+
+        if (!defaultImg){
+            defaultImg = $(skuImgs)[0].imgUrl;
+        }
+
+        skuJson["skuDefaultImg"] = defaultImg;
 
         $(skuImgs).each(function (i, skuImg) {
             skuJson["skuImageList["+i+"].imgName"] = skuImg.imgName;
             skuJson["skuImageList["+i+"].imgUrl"] = skuImg.imgUrl;
             skuJson["skuImageList["+i+"].spuImgId"] = skuImg.id;
-
+            if (defaultImg == skuImg.imgUrl){
+                skuJson["skuImageList["+i+"].isDefault"]=1;
+            }
         });
-
-        //默认图片设置
-        var defaultImg = $("input[name='isDefault']:checked").val();
-
-        if (defaultImg==null){
-            //默认设置第一张图片为默认图片
-            $(skuImgs).each(function (i, skuImg) {
-                if (i==0) {
-                    defaultImg = skuImg.imgUrl;
-                }
-            });
-
-        }
-        skuJson["skuDefaultImg"] = defaultImg;
 
         $.post("savaSku", skuJson, function (data) {
             alert(data);
@@ -165,7 +166,7 @@
             $("#spuSaleAttrGroup").empty();
             //console.log(spuSaleAttrs);
             $(spuSaleAttrs).each(function (i, saleAttr) {
-                var spanBegin = '<span spuId="'+spuId+'" saleAttrId = "' + saleAttr.saleAttrId + '" saleAttrName="'+saleAttr.saleAttrName+'">';
+                var spanBegin = '<span saleAttrId = "' + saleAttr.saleAttrId + '" saleAttrName="'+saleAttr.saleAttrName+'">';
                 var saleAttrName = saleAttr.saleAttrName;
                 var spanEnd = " </span>";
 
@@ -195,7 +196,7 @@
             //遍历结果
             $(attrs).each(function (i, attr) {
                 //设置平台属性和其对应的属性值存放的HTML标签
-                var spanBegin = '<span catalog3Id="'+catalog3Id+'" attrId = "' + attr.id + '">';
+                var spanBegin = '<span  attrId = "' + attr.id + '">';
                 var attrName = attr.attrName;
                 var spanEnd = '</span>';
                 //alert(attrName);
