@@ -64,6 +64,18 @@ public class AttrManageServiceImpl implements AttrManageService {
 
         List<BaseAttrInfo> baseAttrInfos = baseAttrInfoMapper.select(baseAttrInfo);
 
+        for (BaseAttrInfo attrInfo : baseAttrInfos) {
+            //创建一个BaseAttrValue对象
+            BaseAttrValue baseAttrValue = new BaseAttrValue();
+            //设置attrId
+            baseAttrValue.setAttrId(attrInfo.getId());
+            //查询属性值列表
+            List<BaseAttrValue> attrValues = baseAttrValueMapper.select(baseAttrValue);
+            //设置BaseAttrInfo对应的属性值集合
+            attrInfo.setAttrValueList(attrValues);
+
+        }
+
         return baseAttrInfos;
     }
 

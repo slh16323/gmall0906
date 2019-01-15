@@ -65,6 +65,7 @@
 
 
     function close() {
+        //$("#dg_av").datagrid("clear");
         $("#dlg").dialog("close");
     }
 
@@ -175,8 +176,11 @@
         if (!checkBeforeDialog()) {
             return;
         }
-        //初始化datagrid
-        initAttrValueDatagrid();
+        //下一次修改前清空数据
+        $("#attrId").val("");
+        $("#attrName").textbox('clear');
+        $('#dg_av').datagrid({url: ''});
+
         //进入页面前加载数据
         var attrInfoRow = $("#dg").datagrid("getSelected");
         //获取选中的属性id
@@ -185,11 +189,13 @@
         var attrName = attrInfoRow.attrName;
         //发送请求获取数据
         $('#dg_av').datagrid({url: 'getAttrValueList?attrId=' + attrId});
-        $("#attrId").val(attrInfoRow.id);
+        $("#attrId").val(attrId);
         $("#attrName").textbox('setValue', attrName);
 
         //弹出编辑框
         $("#dlg").dialog("open");
+        //初始化datagrid
+        initAttrValueDatagrid();
     }
 
     function deleteAttrInfo() {
@@ -220,7 +226,7 @@
     function checkBeforeDialog() {
         //获取当前被选择的三级分类
         var ctg3val = $("#ctg3ForAttrList").combobox('getValue');
-
+        //判断
         if (ctg3val == '') {
             $.messager.alert('警告', '请先选择三级分类', 'warning');
             return false;

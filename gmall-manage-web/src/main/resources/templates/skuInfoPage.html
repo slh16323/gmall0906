@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div id="sku_dlg" class="easyui-dialog" title="编辑sku" style="width:700px;height:520px;"
+     closed="true" data-options="iconCls:'icon-save',resizable:true,modal:false" buttons="#skuBtns">
+    <form id="skuForm">
+        <br/>
+        <label>sku名称:</label>
+        <input id="skuName" name="skuName" class="easyui-textbox" data-options="" style="width:300px;"/>
+        <br/><br/>
+        <label>商品价格:</label>
+        <input id="price" name="price" class="easyui-numberbox" data-options="min:0,precision:2" style="width:300px;"/>
+        <br/><br/>
+        <label>商品重量（千克):</label>
+        <input id="weight" name="weight" class="easyui-numberbox" data-options="min:0,precision:2"
+               style="width:300px;"/>
+        <br/><br/>
+        <label>商品规格描述:</label>
+        <input id="skuDesc" name="skuDesc" class="easyui-textbox" data-options="multiline:true"
+               style="width:500px;height:100px"/>
+        <input id="spuIdForSku" name="spuId" type="hidden"/>
+
+        <input id="skuId" name="id" type="hidden"/>
+
+        <input id="catalog3IdForSku" name="catalog3Id" type="hidden"/>
+        <br/><br/>
+
+        <input id="skuInfo" name="skuInfo" type="hidden"/>
+
+
+        <div id="attrInfoGroup" title="平台属性" class="easyui-panel" style="padding:5px;"></div>
+
+        <div id="spuSaleAttrGroup" title="销售属性" class="easyui-panel" style="padding:5px;"></div>
+
+
+        <!----------------商品图片列表 ----------------------->
+
+        <table id="skuImgDg" class="easyui-datagrid" title="商品图片列表"
+               data-options="singleSelect:false,selectOnCheck:false,method:'get'"></table>
+
+        <br/><br/>
+
+
+        <!-------------->
+
+
+    </form>
+</div>
+<!----------------弹出框的按钮组----------------------->
+<div id="skuBtns">
+    <a href="#" class="easyui-linkbutton" onclick="saveSku()">保 存</a>
+    <a href="#" class="easyui-linkbutton" onclick="closeSku()">关 闭</a>
+</div>
+<script language="JavaScript">
+    function closeSku() {
+        $("#sku_dlg").dialog('close');
+    }
+
+    function saveSku() {
+
+        var skuJson = {};
+        //封装sku基本信息
+        var skuName = $("#skuName").textbox("getValue");
+        var price = $("#price").numberbox("getValue");
+        var weight = $("#weight").numberbox("getValue");
+        var skuDesc = $("#skuDesc").textbox("getValue");
+
+        skuJson["skuName"] = skuName;
+        skuJson["price"] = price;
+        skuJson["weight"] = weight;
+        skuJson["skuDesc"] = skuDesc;
+
+        //获取平台属性id的集合
+        var spans = $("#attrInfoGroup").children("span");
+        $(spans).each(function (i, attr) {
+            var attrId = $(attr).attr("attrId");
+            var catalog3Id = $(attr).attr("catalog3Id");
+            skuJson["catalog3Id"] = catalog3Id;
+            skuJson["skuAttrValueList["+i+"].attrId"] = attrId;
+            skuJson["skuAttrValueList["+i+"].valueId"] = $(spans).children("select").val();
+        });
+
+        //获取销售属性id的集合
+        var saleSpans = $("#spuSaleAttrGroup").children("span");
+        $(saleSpans).each(function (i, salaAttr) {
+            var spuId = $(salaAttr).attr("spuId");
+            skuJson["spuId"] = spuId;
+            var saleAttrId = $(salaAttr).attr("salaAttr");
+            skuJson["skuSaleAttrValueList["+i+"].saleAttrId"] = saleAttrId;
+            skuJson["skuSaleAttrValueList["+i+"].saleAttrValueId"] = $(saleSpans).children("select").val();
+
+            //封装销售属性名称和销售属性值
+            var saleAttrName = $(salaAttr).attr("saleAttrName");
+            var saleAttrValueName = $(salaAttr).children("select").find("option:selected").text();
+
+            skuJson["skuSaleAttrValueList[" + i + "].saleAttrName"] = saleAttrName;
+            skuJson["skuSaleAttrValueList[" + i + "].saleAttrValueName"] = saleAttrValueName;
+
+        });
+
+        //封装图片信息
+        var skuImgs = $("#skuImgDg").datagrid("getChecked");
+
+        $(skuImgs).each(function (i, skuImg) {
+            skuJson["skuImageList["+i+"].imgName"] = skuImg.imgName;
+            skuJson["skuImageList["+i+"].imgUrl"] = skuImg.imgUrl;
+            skuJson["skuImageList["+i+"].spuImgId"] = skuImg.id;
+
+        });
+
+        //默认图片设置
+        var defaultImg = $("input[name='isDefault']:checked").val();
+
+        if (defaultImg==null){
+            //默认设置第一张图片为默认图片
+            $(skuImgs).each(function (i, skuImg) {
+                if (i==0) {
+                    defaultImg = skuImg.imgUrl;
+                }
+            });
+
+        }
+        skuJson["skuDefaultImg"] = defaultImg;
+
+        $.post("savaSku", skuJson, function (data) {
+            alert(data);
+        });
+
+
+
+    }
+
+    //初始化图片信息
+    function initSkuImgListDatagrid(spuId) {
+        //alert(spuId);
+        $("#skuImgDg").datagrid({
+            url:'spuImageList?spuId='+spuId,
+            columns:[[
+                { field:'checkFlag',checkbox:true},
+                { field:'id',title:'文件编号',width:'15%'},//隐藏文件页面内部编号
+                { field:'imgName',title:'图片简称',width:'30%'},
+                { field:'imgUrl',title:'图片路径' ,width:'20%',
+                    formatter: function(value,row,index){
+                        return "<img src='"+value+"' style='width:100px;height:100px;'/>";
+                    }
+                },
+                { field:'isDefault',title:'是否默认图片' ,width:'20%' ,
+                    formatter: function(value,row,index){
+                        var url = row.imgUrl;
+                        return "<input type='radio' name = 'isDefault' value='"+url+"' />";
+                    }
+                }
+            ]]
+        });
+    }
+
+    //初始化销售属性
+    function initSpuSaleAttrGroup(spuId) {
+        //alert(spuId);
+        $.post("spuSaleAttrList", {spuId: spuId}, function (spuSaleAttrs) {
+            $("#spuSaleAttrGroup").empty();
+            //console.log(spuSaleAttrs);
+            $(spuSaleAttrs).each(function (i, saleAttr) {
+                var spanBegin = '<span spuId="'+spuId+'" saleAttrId = "' + saleAttr.saleAttrId + '" saleAttrName="'+saleAttr.saleAttrName+'">';
+                var saleAttrName = saleAttr.saleAttrName;
+                var spanEnd = " </span>";
+
+                var selectBegin = "<select>";
+                var spuSaleAttrValueList = saleAttr.spuSaleAttrValueList;
+                var options = "";
+
+                $(spuSaleAttrValueList).each(function (j, salaAttrValue) {
+                    var optionBegin = "<option value='" + salaAttrValue.id + "'>";
+                    var saleAttrValueName = salaAttrValue.saleAttrValueName;
+                    var optionEnd = "</option>";
+
+                    options = options + optionBegin + saleAttrValueName + optionEnd;
+                });
+                var selectEnd = "</select>";
+                $("#spuSaleAttrGroup").append(spanBegin + saleAttrName + ":" + selectBegin + options + selectEnd + "<br/>" + spanEnd);
+            });
+
+        });
+    }
+
+    //初始化平台属性
+    function initAttrInfoGroup(catalog3Id) {
+        //发送请求获取平台属性数据
+        $.post("getAttrList", {catalog3Id: catalog3Id}, function (attrs) {
+            $("#attrInfoGroup").empty();
+            //遍历结果
+            $(attrs).each(function (i, attr) {
+                //设置平台属性和其对应的属性值存放的HTML标签
+                var spanBegin = '<span catalog3Id="'+catalog3Id+'" attrId = "' + attr.id + '">';
+                var attrName = attr.attrName;
+                var spanEnd = '</span>';
+                //alert(attrName);
+                var selectBegin = "<select>";
+                var options = "";
+
+                //获取平台属性值的对象
+                var attrValueList = attr.attrValueList;
+                //遍历属性值的对象
+                $(attrValueList).each(function (j, attrValue) {
+                    var optionBegin = "<option value='" + attrValue.id + "'>";
+                    var valueName = attrValue.valueName;
+                    var optionEnd = "</option>";
+
+                    options = options + optionBegin + valueName + optionEnd;
+
+                });
+                var selectEnd = "</select>";
+                //追加到平台属性所在的标签中
+                $("#attrInfoGroup").append(spanBegin + attrName + ":" + selectBegin + options + selectEnd + "<br/>" + spanEnd);
+            });
+        });
+
+
+    }
+</script>
+</body>
+</html>

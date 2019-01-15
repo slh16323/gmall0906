@@ -53,10 +53,53 @@
 
 <div th:include="spuInfoPage"></div>
 
+<div th:include="skuListPage"></div>
+
+<div th:include="skuInfoPage"></div>
+
 <script language="JavaScript">
+
+    function addSkuInfo() {
+        //打开添加sku的对话框
+        $("#sku_dlg").dialog("open");
+
+        //　获得三级分类id
+        var catalog3Id = $("#ctg3ForSpuList").combobox("getValue");
+        if(!catalog3Id){
+            catalog3Id = '61';
+        }
+
+
+
+        //初始化平台属性信息
+        initAttrInfoGroup(catalog3Id);
+
+        //获取spuInfo的id
+        var spuId = $("#spulist_dg").datagrid('getSelected').id;
+
+        //初始化销售信息
+        initSpuSaleAttrGroup(spuId);
+
+        //初始化图片信息
+        initSkuImgListDatagrid(spuId);
+
+
+    }
+
+    function showSkuInfoList() {
+        $("#skulist_dlg").dialog("open");
+        //获取选中的spuId
+        var spuId = $("#spulist_dg").datagrid("getSelected").id;
+        //alert(spuId);
+        //初始化skulist_dlg对话框
+        initSkuListDatagrid(spuId);
+    }
 
     function addSpuInfo() {
         $("#spu_dlg").dialog("open");
+
+        //初始化spu对话框
+        initSpuInfoDlg();
     }
     function reloadSpuList() {
         //　获得三级分类id
@@ -67,7 +110,7 @@
         $("#spulist_dg").datagrid({
             url:'spuList?catalog3Id='+catalog3Id
         });
-        alert("刷新spu的信息列表");
+        //alert("刷新spu的信息列表");
     }
 </script>
 </body>
