@@ -40,6 +40,18 @@
     </div>
 </div>
 <script language="JavaScript">
+
+    function editSkuInfo() {
+
+    }
+
+    function reloadSkuList() {
+        var spuId = $("#spulist_dg").datagrid("getSelected").id;
+        $("#skulist_dg").datagrid({
+            url:"skuInfoListBySpu?spuId="+spuId
+        });
+    }
+
     function initSkuListDatagrid(spuId) {
         $("#skulist_dg").datagrid({
             url:"skuInfoListBySpu?spuId="+spuId

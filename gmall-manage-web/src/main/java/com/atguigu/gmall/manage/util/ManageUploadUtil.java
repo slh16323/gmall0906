@@ -47,7 +47,7 @@ public class ManageUploadUtil {
             e.printStackTrace();
         }
         //设置fdfs服务器地址
-        String fdfsUrl = ManageConstant.imgUrl;
+        String fdfsUrl = ManageConstant.IMGURL;
         //获取组名
         String groupName = bytes[0];
         //获取文件名

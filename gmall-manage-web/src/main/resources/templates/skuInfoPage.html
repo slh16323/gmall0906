@@ -129,10 +129,16 @@
 
         $.post("savaSku", skuJson, function (data) {
             alert(data);
+            $("#sku_dlg").dialog('close');
         });
 
 
 
+    }
+    //初始化表单数据
+    function initSkuFromData(){
+
+        $("#skuForm").form('clear');
     }
 
     //初始化图片信息

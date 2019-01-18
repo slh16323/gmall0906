@@ -62,17 +62,42 @@
 <script language="JavaScript">
 
     function deleteImg() {
-        var row = $("#spuImgDg").datagrid('getSelected')
-        var rowIndex = $("#spuImgDg").datagrid("getRowIndex", row);
-        $("#spuImgDg").datagrid("deleteRow", rowIndex);
+        var row = $("#spuImgDg").datagrid('getSelected');
+        var spuId = $("#spuId").val()
+        var imgName = row.imgName;
+        var imgId = row.id;
+
+        $.messager.confirm('确认', '您确认想要删除【' + imgName + '】这张图片吗？', function (r) {
+            if (r){
+                $("#spuImgDg").datagrid({url: "deleteSpuImg?spuId="+spuId+"&imgId="+imgId});
+            }
+        });
+
     }
 
     function deleteSpuSaleAttr() {
-        var row = $("#spuSaleAttrDg").datagrid('getSelected')
-        var rowIndex = $("#spuSaleAttrDg").datagrid("getRowIndex", row);
-        $("#spuSaleAttrDg").datagrid("deleteRow", rowIndex);
+        var row = $("#spuSaleAttrDg").datagrid('getSelected');
+
+        var spuId = row.spuId;
+        var saleAttrId = row.saleAttrId;
+        var saleAttrName = row.saleAttrName;
+
+        $.messager.confirm('确认', '您确认想要删除【' + saleAttrName + '】这个属性吗？', function (r) {
+            if (r){
+                if (spuId){
+                    $("#spuSaleAttrDg").datagrid({url: "deleteSpuSaleAttr?spuId="+spuId+"&saleAttrId="+saleAttrId});
+                }else {
+                    alert('删除假数据');
+                    var rowIndex = $("#spuSaleAttrDg").datagrid("getRowIndex", row);
+                    $("#spuSaleAttrDg").datagrid('deleteRow', rowIndex);
+                }
+
+            }
+        });
+
+
     }
-    
+
     function closeSpu() {
         $("#spu_dlg").dialog('close');
     }
@@ -104,12 +129,12 @@
         });
 
         //当用户选择了文件以后，表格要进行增行
-        spuImgUploader.on('fileQueued',function (file) {
-            var row={
-                id:file.id,
-                imgName:file.name
+        spuImgUploader.on('fileQueued', function (file) {
+            var row = {
+                id: file.id,
+                imgName: file.name
             };
-            spuImgDg.datagrid('appendRow',row);
+            spuImgDg.datagrid('appendRow', row);
             //console.log(file.name);
         });
 
@@ -155,10 +180,11 @@
         //获取spu数据
         spuJson["spuName"] = $("#spuName").textbox("getValue");
         spuJson["description"] = $("#description").textbox("getValue");
-
+        spuJson["id"] = $("#spuId").val();
+        //alert($("#spuId").val());
         //获取三级分类id
         var catalog3Id = $("#ctg3ForSpuList").combobox("getValue");
-        if(!catalog3Id){
+        if (!catalog3Id) {
             catalog3Id = '61';
         }
         spuJson["catalog3Id"] = catalog3Id;
@@ -166,8 +192,8 @@
         var spuImgDgRows = $("#spuImgDg").datagrid("getRows");
         //console.log(spuImgDgRows);
         $(spuImgDgRows).each(function (i, spuImgDgRow) {
-            spuJson["spuImageList["+i+"].imgName"] = spuImgDgRow.imgName;
-            spuJson["spuImageList["+i+"].imgUrl"] = spuImgDgRow.imgUrl;
+            spuJson["spuImageList[" + i + "].imgName"] = spuImgDgRow.imgName;
+            spuJson["spuImageList[" + i + "].imgUrl"] = spuImgDgRow.imgUrl;
         });
 
         //获取销售属性数据
@@ -195,26 +221,38 @@
 
     }
 
-    function initSpuInfoDlg() {
+    function initSpuInfoDlg(spuInfo) {
         //alert("初始化spu对话框");
 
         //初始化spu信息
+        initSpuForm(spuInfo);
 
         //初始化spu图片信息列表
-        initSpuImgListDatagrid();
+        initSpuImgListDatagrid(spuInfo);
 
         //初始化spu销售属性列表信息
-        initSpuSaleAttrListDatagrid();
+        initSpuSaleAttrListDatagrid(spuInfo);
 
         //初始化spu上传控件
         initUpload();
     }
 
+    //初始化表单数据
+    function initSpuForm(spuInfo) {
+        $("#spuForm").form("clear");
+        if (spuInfo) {
+            $("#spuName").textbox("setValue", spuInfo.spuName);
+            $("#description").textbox("setValue", spuInfo.description);
+            $("#spuId").val(spuInfo.id);
+        }
+    }
 
 
-    function initSpuImgListDatagrid() {
-        $("#spuImgDg").datagrid({
-            idField:'id',
+    function initSpuImgListDatagrid(spuInfo) {
+        $('#spuImgDg').datagrid('loadData', {total: 0, rows: []});
+        $("#spuImgDg").datagrid({url:""});
+        spuImgDg = $("#spuImgDg").datagrid({
+            idField: 'id',
             columns: [[
                 {field: 'id', title: '编号', width: 100},
                 {field: 'spuId', title: 'spuId', width: 100},
@@ -253,12 +291,17 @@
                 return "<img src=" + rowData.imgUrl + " style='width:100px;height:100px;'>";
             }
         });
+
+        if (spuInfo) {
+            spuImgDg.datagrid({url: "spuImageList?spuId=" + spuInfo.id})
+        }
     }
 
-    function initSpuSaleAttrListDatagrid() {
+    function initSpuSaleAttrListDatagrid(spuInfo) {
         //alert("初始化销售属性数据表格");
         $("#spuSaleAttrDg").datagrid('loadData', {total: 0, rows: []});
-        $("#spuSaleAttrDg").datagrid({
+        $("#spuSaleAttrDg").datagrid({url:""});
+        spuSaleAttrDg = $("#spuSaleAttrDg").datagrid({
             columns: [[
                 {field: 'id', title: '编号', width: 100},
                 {field: 'spuId', title: 'spuId', width: 100},
@@ -268,6 +311,9 @@
             ]]
 
         });
+        if(spuInfo){
+            spuSaleAttrDg.datagrid({url:"spuSaleAttrList?spuId="+spuInfo.id});
+        }
     }
 
     function addSpuSaleAttr() {
@@ -275,6 +321,17 @@
 
         //初始化销售值的数据表格
         initSpuSaleAttrDlg();
+    }
+
+    function editSpuSaleAttr() {
+
+        var spuSaleAttr = $("#spuSaleAttrDg").datagrid('getSelected')
+
+        $("#spuSaleAttr_dlg").dialog("open");
+
+        initSpuSaleAttrDlg(spuSaleAttr);
+
+
     }
 </script>
 

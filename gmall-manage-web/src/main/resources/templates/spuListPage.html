@@ -59,6 +59,8 @@
 
 <script language="JavaScript">
 
+
+
     function addSkuInfo() {
         //打开添加sku的对话框
         $("#sku_dlg").dialog("open");
@@ -68,8 +70,8 @@
         if(!catalog3Id){
             catalog3Id = '61';
         }
-
-
+        //初始化表单数据
+        initSkuFromData();
 
         //初始化平台属性信息
         initAttrInfoGroup(catalog3Id);
@@ -101,6 +103,17 @@
         //初始化spu对话框
         initSpuInfoDlg();
     }
+
+    function editSpuInfo() {
+        $("#spu_dlg").dialog("open");
+
+        var spuInfo = $('#spulist_dg').datagrid('getSelected');
+
+
+        initSpuInfoDlg(spuInfo);
+
+    }
+
     function reloadSpuList() {
         //　获得三级分类id
         var catalog3Id = $("#ctg3ForSpuList").combobox("getValue");

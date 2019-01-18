@@ -3,15 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
-    <link rel="stylesheet" type="text/css" href="/scss/shop.css" />
+    <link rel="stylesheet" type="text/css" href="/scss/shop.css"/>
     <link rel="stylesheet" type="text/css" href="/scss/main.css"/>
-    <link rel="stylesheet" href="/scss/header.css" />
+    <link rel="stylesheet" href="/scss/header.css"/>
     <link rel="stylesheet" type="text/css" href="/bootstrap/css/bootstrap.css"/>
 </head>
 <body>
-<div th:text="${key}">
-    hello hdad
-</div>
+    <div th:text="${key}">
+        hello hdad
+    </div>
+    <div th:each="str:${list}" th:text="${str}">
+        你好
+    </div>
+    <div th:if="1==1">
+        存在
+    </div>
+    <div th:text="(1==0)?'存在':'不存在'">不在在</div>
 
+    <div th:each="skuInfo:${skuInfo}" th:text="${skuInfo.skuName}"></div>
+
+    <a th:href="'javascript:hello(\''+${key} + '\');'">函数调用测试</a>
+    <!--<div th:include="a"></div>-->
+    <div th:include="a::b"></div>
+
+    <div th:text="${spuInfo?.spuName}"></div>
+
+
+<script language="JavaScript">
+    function hello(hello) {
+        alert(hello);
+    }
+</script>
 </body>
 </html>

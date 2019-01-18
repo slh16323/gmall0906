@@ -1,10 +1,7 @@
 package com.atguigu.gmall.manage.controller;
 
 import com.alibaba.dubbo.config.annotation.Reference;
-import com.atguigu.gmall.bean.BaseSaleAttr;
-import com.atguigu.gmall.bean.SpuImage;
-import com.atguigu.gmall.bean.SpuInfo;
-import com.atguigu.gmall.bean.SpuSaleAttr;
+import com.atguigu.gmall.bean.*;
 import com.atguigu.gmall.manage.util.ManageUploadUtil;
 import com.atguigu.gmall.service.SpuInfoService;
 import org.springframework.stereotype.Controller;
@@ -13,7 +10,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 public class SpuController {
@@ -21,6 +20,36 @@ public class SpuController {
     @Reference
     private SpuInfoService spuInfoService;
 
+
+    @RequestMapping("deleteSpuSaleAttr")
+    @ResponseBody
+    public List<SpuSaleAttr> deleteSpuSaleAttr(@RequestParam("spuId") String spuId,
+                                       @RequestParam("saleAttrId") String saleAttrId){
+
+        List<SpuSaleAttr> spuSaleAttrs = spuInfoService.deleteSpuSaleAttr(spuId,saleAttrId);
+
+        for (SpuSaleAttr spuSaleAttr : spuSaleAttrs) {
+            List<SpuSaleAttrValue> spuSaleAttrValueList = spuSaleAttr.getSpuSaleAttrValueList();
+            Map map=new HashMap();
+            map.put("total",spuSaleAttrValueList.size());
+            map.put("rows",spuSaleAttrValueList);
+            spuSaleAttr.setSpuSaleAttrValueJson(map);
+        }
+
+        return spuSaleAttrs;
+
+    }
+
+
+    @RequestMapping("deleteSpuImg")
+    @ResponseBody
+    public List<SpuImage> deleteSpuImg(@RequestParam("spuId") String spuId,
+                                       @RequestParam("imgId") String imgId){
+
+        List<SpuImage> spuImages = spuInfoService.deleteSpuImg(spuId,imgId);
+
+        return spuImages;
+    }
 
     @RequestMapping("spuImageList")
     @ResponseBody
@@ -37,6 +66,16 @@ public class SpuController {
     public List<SpuSaleAttr> spuSaleAttrList(String spuId){
 
         List<SpuSaleAttr> spuSaleAttrs = spuInfoService.spuSaleAttrList(spuId);
+
+        for (SpuSaleAttr spuSaleAttr : spuSaleAttrs) {
+            List<SpuSaleAttrValue> spuSaleAttrValueList = spuSaleAttr.getSpuSaleAttrValueList();
+            Map map=new HashMap();
+            map.put("total",spuSaleAttrValueList.size());
+            map.put("rows",spuSaleAttrValueList);
+            // String spuSaleAttrValueJson = JSON.toJSONString(map);
+            spuSaleAttr.setSpuSaleAttrValueJson(map);
+        }
+
 
         return spuSaleAttrs;
 

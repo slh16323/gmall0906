@@ -40,6 +40,10 @@
 </div>
 <script language="JavaScript">
 
+    function closeSpuSaleAttr() {
+        $("#spuSaleAttr_dlg").dialog('close');
+    }
+
     function saveSpuSaleAttr() {
         //暂存销售属性值
         var saleAttrId = $("#saleAttrSelect").combobox('getValue');
@@ -47,6 +51,18 @@
         var saleAttrName = $("#saleAttrSelect").combobox('getText');
 
         var spuSaleAttrValueJson = $("#spuSaleAttrValueDg").datagrid('getData');
+
+        //通过saleAttrId查询spuSaleAttrDg中有没有相同的销售属性
+        var rows = $("#spuSaleAttrDg").datagrid("getData").rows;
+        console.log(rows);
+        $(rows).each(function (i, row) {
+            var id = row.saleAttrId;
+
+            if (id == saleAttrId){
+                //将原来的删除
+                $("#spuSaleAttrDg").datagrid('deleteRow', i);
+            }
+        })
 
         //console.log(JSON.stringify(spuSaleAttrValueJson));
         //将销售属性和属性值的数据存放到销售属性列表
@@ -65,7 +81,7 @@
         $("#spuSaleAttrValueDg").datagrid('appendRow',{
             id:'',
             spuId:'',
-            saleAttrId:'',
+            saleAttrId:$("#saleAttrSelect").combobox('getValue'),
             saleAttrValueName:'请添加属性值'
         });
     }
@@ -79,7 +95,12 @@
 
     }
 
-    function initSpuSaleAttrDlg() {
+    function initSpuSaleAttrDlg(spuSaleAttr) {
+        //初始化选择下拉菜单
+        $("#saleAttrSelect").combobox('reset');
+        if (spuSaleAttr && spuSaleAttr.saleAttrId){
+            $("#saleAttrSelect").combobox('select', spuSaleAttr.saleAttrId);
+        }
         //初始化销售属性值的数据表格
         //alert("初始化销售属性值的数据表格");
         $("#spuSaleAttrValueDg").datagrid('loadData',{total:0,rows:[]});
@@ -105,6 +126,13 @@
                 });
             }
         });
+
+        //加载数据
+        //如果有缓存数据加载缓存数据  如果没有通过前页的spuid和saleAttrid从数据库中查询
+        if (spuSaleAttr && spuSaleAttr.spuSaleAttrValueJson && spuSaleAttr.spuSaleAttrValueJson !=''){
+            spuSaleAttrValueDg.datagrid('loadData', spuSaleAttr.spuSaleAttrValueJson);
+        }
+
     }
 </script>
 </body>
