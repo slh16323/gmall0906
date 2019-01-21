@@ -143,4 +143,11 @@ public class AttrManageServiceImpl implements AttrManageService {
         baseAttrInfoMapper.delete(baseAttrInfo);
 
     }
+
+    @Override
+    public List<BaseAttrInfo> getAttrListByValueIds(String attrValueId) {
+
+        List<BaseAttrInfo> baseAttrInfos = baseAttrInfoMapper.selectAttrListByValueIds(attrValueId);
+        return baseAttrInfos;
+    }
 }

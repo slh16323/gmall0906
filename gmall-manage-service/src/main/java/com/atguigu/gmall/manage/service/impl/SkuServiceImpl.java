@@ -176,4 +176,21 @@ public class SkuServiceImpl implements SkuInfoService {
 
         return skuInfoList;
     }
+
+    @Override
+    public List<SkuInfo> skuList() {
+
+        List<SkuInfo> skuInfos = skuInfoMapper.selectAll();
+
+        for (SkuInfo skuInfo : skuInfos) {
+            SkuAttrValue skuAttrValue = new SkuAttrValue();
+            skuAttrValue.setSkuId(skuInfo.getId());
+            //获取平台属性id
+            List<SkuAttrValue> attrValues = skuAttrValueMapper.select(skuAttrValue);
+            //将平台属性存放到skuInfo中
+            skuInfo.setSkuAttrValueList(attrValues);
+        }
+
+        return skuInfos;
+    }
 }
