@@ -5,6 +5,7 @@ import com.atguigu.gmall.bean.SkuInfo;
 import com.atguigu.gmall.service.SkuInfoService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
@@ -15,6 +16,16 @@ public class SkuController {
     @Reference
     SkuInfoService skuInfoService;
 
+
+
+    @RequestMapping("deleteSkuInfo")
+    @ResponseBody
+    public String deleteSkuInfo(@RequestParam("skuId") String skuId){
+
+        skuInfoService.deleteSkuInfo(skuId);
+
+        return "success";
+    }
 
     @RequestMapping("savaSku")
     @ResponseBody

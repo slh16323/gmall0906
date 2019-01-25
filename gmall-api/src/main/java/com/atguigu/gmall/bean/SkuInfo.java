@@ -9,7 +9,7 @@ import java.util.List;
  * @param
  * @return
  */
-public class SkuInfo  implements Serializable {
+public class SkuInfo implements Serializable {
 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
@@ -45,7 +45,6 @@ public class SkuInfo  implements Serializable {
 
     @Transient
     List<SkuSaleAttrValue> skuSaleAttrValueList;
-
 
 
     public String getId() {

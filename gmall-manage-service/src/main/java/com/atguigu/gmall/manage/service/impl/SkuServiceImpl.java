@@ -12,6 +12,7 @@ import com.atguigu.gmall.service.SkuInfoService;
 import com.atguigu.gmall.util.RedisUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import redis.clients.jedis.Jedis;
+import tk.mybatis.mapper.entity.Example;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,6 +43,26 @@ public class SkuServiceImpl implements SkuInfoService {
         skuInfo.setSpuId(spuId);
 
         List<SkuInfo> skuInfos = skuInfoMapper.select(skuInfo);
+
+        for (SkuInfo info : skuInfos) {
+            //插入图片信息
+            SkuImage skuImage = new SkuImage();
+            skuImage.setSkuId(info.getId());
+            List<SkuImage> skuImages = skuImageMapper.select(skuImage);
+            info.setSkuImageList(skuImages);
+
+            //保存销售属性
+            SkuSaleAttrValue skuSaleAttrValue = new SkuSaleAttrValue();
+            skuSaleAttrValue.setSkuId(info.getId());
+            List<SkuSaleAttrValue> skuSaleAttrValues = skuSaleAttrValueMapper.select(skuSaleAttrValue);
+            info.setSkuSaleAttrValueList(skuSaleAttrValues);
+
+            SkuAttrValue skuAttrValue = new SkuAttrValue();
+            skuAttrValue.setSkuId(info.getId());
+            List<SkuAttrValue> skuAttrValues = skuAttrValueMapper.select(skuAttrValue);
+            info.setSkuAttrValueList(skuAttrValues);
+
+        }
 
         return skuInfos;
     }
@@ -192,5 +213,38 @@ public class SkuServiceImpl implements SkuInfoService {
         }
 
         return skuInfos;
+    }
+
+    @Override
+    public SkuInfo getSkuById(String skuId) {
+
+        SkuInfo skuInfo = new SkuInfo();
+        skuInfo.setId(skuId);
+        skuInfo = skuInfoMapper.selectOne(skuInfo);
+
+        return skuInfo;
+    }
+
+    @Override
+    public void deleteSkuInfo(String skuId) {
+
+        Example skuExample = new Example(SkuInfo.class);
+        skuExample.createCriteria().andEqualTo("id", skuId);
+        skuInfoMapper.deleteByExample(skuExample);
+
+        //删除对应的图片信息
+        Example skuImageExample = new Example(SkuImage.class);
+        skuImageExample.createCriteria().andEqualTo("skuId", skuId);
+        skuImageMapper.deleteByExample(skuImageExample);
+
+        //删除对应的平台属性关联表
+        Example skuAttrExample = new Example(SkuAttrValue.class);
+        skuAttrExample.createCriteria().andEqualTo("skuId", skuId);
+        skuAttrValueMapper.deleteByExample(skuAttrExample);
+
+        //删除销售属性
+        Example skuSaleAttrExample = new Example(SkuSaleAttrValue.class);
+        skuSaleAttrExample.createCriteria().andEqualTo("skuId", skuId);
+        skuSaleAttrValueMapper.deleteByExample(skuSaleAttrExample);
     }
 }

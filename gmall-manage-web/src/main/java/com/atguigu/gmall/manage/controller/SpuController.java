@@ -20,6 +20,13 @@ public class SpuController {
     @Reference
     private SpuInfoService spuInfoService;
 
+    @RequestMapping("deleteSpuInfo")
+    @ResponseBody
+    public String deleteSpuInfo(@RequestParam("spuId")String spuId){
+
+        spuInfoService.deleteSpuInfo(spuId);
+        return "success";
+    }
 
     @RequestMapping("deleteSpuSaleAttr")
     @ResponseBody

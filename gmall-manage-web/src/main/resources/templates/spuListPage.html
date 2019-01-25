@@ -22,7 +22,7 @@
         <div style="margin-bottom:5px">
             <a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="addSpuInfo()">添加</a>
             <a href="#" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="editSpuInfo()">编辑</a>
-            <a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true">删除</a>
+            <a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="deleeSpuInfo()">删除</a>
             <a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="addSkuInfo()">增加sku</a>
             <a href="#" class="easyui-linkbutton" iconCls="icon-search" plain="true" onclick="showSkuInfoList()"> sku列表</a>
         </div>
@@ -59,9 +59,23 @@
 
 <script language="JavaScript">
 
+    function deleeSpuInfo() {
+        var spuInfo = $('#spulist_dg').datagrid('getSelected');
+        var spuName = spuInfo.spuName;
+        var spuId = spuInfo.id;
+        //alert(spuId);
+        $.messager.confirm('确认', '您确认想要删除【' + spuName + '】这个spuInfo吗？', function (r) {
+            if (r){
+                $.post("deleteSpuInfo", {"spuId": spuId}, function (data) {
+                    $("#spulist_dg").datagrid("reload");
+                    alert(data);
+                });
+            }
+        });
+    }
 
 
-    function addSkuInfo() {
+    function addSkuInfo(skuInfo) {
         //打开添加sku的对话框
         $("#sku_dlg").dialog("open");
 
@@ -71,7 +85,7 @@
             catalog3Id = '61';
         }
         //初始化表单数据
-        initSkuFromData();
+        initSkuFromData(skuInfo);
 
         //初始化平台属性信息
         initAttrInfoGroup(catalog3Id);
@@ -108,7 +122,6 @@
         $("#spu_dlg").dialog("open");
 
         var spuInfo = $('#spulist_dg').datagrid('getSelected');
-
 
         initSpuInfoDlg(spuInfo);
 

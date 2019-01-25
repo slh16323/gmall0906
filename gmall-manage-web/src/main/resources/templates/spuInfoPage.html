@@ -164,8 +164,9 @@
 
         //当点击上传时，进行文件的上传
         $('#spuImgUploadBtn').click(function () {
+
             if (spuImgUploader.getFiles().length <= 0) {
-                $.messager().alert('警告', '没有需要上传的文件', 'warning');
+                $.messager.alert('警告', '没有需要上传的文件', 'warning');
                 return;
             }
             spuImgUploader.upload();
@@ -217,6 +218,7 @@
         //异步提交spu信息
         $.post("savaSpu", spuJson, function (data) {
             alert(data);
+            $("#spu_dlg").dialog('close');
         })
 
     }
@@ -330,7 +332,6 @@
         $("#spuSaleAttr_dlg").dialog("open");
 
         initSpuSaleAttrDlg(spuSaleAttr);
-
 
     }
 </script>

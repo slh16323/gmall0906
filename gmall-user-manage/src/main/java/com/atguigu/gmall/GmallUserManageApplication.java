@@ -1,4 +1,4 @@
-package com.atguigu.gmall.usermanage;
+package com.atguigu.gmall;
 
 
 import org.springframework.boot.SpringApplication;

@@ -16,4 +16,8 @@ public interface SkuInfoService {
     List<SkuInfo> getSkuSaleAttrValueListBySpu(String spuId);
 
     List<SkuInfo> skuList();
+
+    SkuInfo getSkuById(String skuId);
+
+    void deleteSkuInfo(String skuId);
 }

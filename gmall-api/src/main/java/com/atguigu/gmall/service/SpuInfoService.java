@@ -23,4 +23,6 @@ public interface SpuInfoService {
     List<SpuImage> deleteSpuImg(String spuId, String imgId);
 
     List<SpuSaleAttr> deleteSpuSaleAttr(String spuId, String saleAttrId);
+
+    void deleteSpuInfo(String spuId);
 }

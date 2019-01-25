@@ -6,22 +6,22 @@
 </head>
 <body>
 <div id="skulist_dlg" class="easyui-dialog" title="sku列表" style="width:700px;height:520px;"
-     closed="true"  data-options="resizable:true,modal:false"   >
+     closed="true" data-options="resizable:true,modal:false">
     <!-----------------列表 ----------------------------->
     <table id="skulist_dg" class="easyui-datagrid"
            data-options="singleSelect:true,method:'get',toolbar:'#skulist_tb'">
         <thead>
         <tr>
-            <th data-options="field:'id'" width="10%">库存单元id </th>
+            <th data-options="field:'id'" width="10%">库存单元id</th>
             <th data-options="field:'skuName'" width="60%">库存单元名称</th>
             <th data-options="field:'price'" width="30%">价格</th>
-            <th data-options="field:'weight',hidden:'true'" >重量</th>
+            <th data-options="field:'weight',hidden:'true'">重量</th>
             <th data-options="field:'catalog3Id',hidden:'true'">三级分类</th>
-            <th data-options="field:'skuImageList',hidden:'true'"  >图片列表</th>
-            <th data-options="field:'skuAttrValueList',hidden:'true'"  >平台属性</th>
-            <th data-options="field:'skuSaleAttrValueList',hidden:'true'"  >销售属性</th>
-            <th data-options="field:'skuDesc',hidden:'true'"  >商品描述 </th>
-            <th data-options="field:'skuDefaultImg',hidden:'true'">默认图片 </th>
+            <th data-options="field:'skuImageList',hidden:'true'">图片列表</th>
+            <th data-options="field:'skuAttrValueList',hidden:'true'">平台属性</th>
+            <th data-options="field:'skuSaleAttrValueList',hidden:'true'">销售属性</th>
+            <th data-options="field:'skuDesc',hidden:'true'">商品描述</th>
+            <th data-options="field:'skuDefaultImg',hidden:'true'">默认图片</th>
         </tr>
         </thead>
     </table>
@@ -30,31 +30,48 @@
         <div style="margin-bottom:5px">
 
             <a href="#" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="editSkuInfo()">编辑</a>
-            <a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true">删除</a>
+            <a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="delSkuInfo()">删除</a>
         </div>
         <input id="spuIdForSkuList" name="spuIdForSkuId" type="hidden"/>
         <input id="catalog3IdForSkuList" name="catalog3IdForSkuId" type="hidden"/>
         <div>
-            <a href="#" class="easyui-linkbutton" iconCls="icon-search"  onclick="reloadSkuList()"  >刷新列表</a>
+            <a href="#" class="easyui-linkbutton" iconCls="icon-search" onclick="reloadSkuList()">刷新列表</a>
         </div>
     </div>
 </div>
 <script language="JavaScript">
 
     function editSkuInfo() {
+        var skuInfo = $("#skulist_dg").datagrid("getSelected");
 
+        addSkuInfo(skuInfo);
+
+
+    }
+
+    function delSkuInfo() {
+        var skuInfo = $("#skulist_dg").datagrid("getSelected");
+        $.messager.confirm('确认', '您确认想要删除【' + skuInfo.skuName + '】这个skuInfo吗？', function (r) {
+            if (r){
+                $.post("deleteSkuInfo", {"skuId": skuInfo.id}, function (data) {
+                    $("#skulist_dg").datagrid("reload");
+                    alert(data);
+                });
+            }
+
+        });
     }
 
     function reloadSkuList() {
         var spuId = $("#spulist_dg").datagrid("getSelected").id;
         $("#skulist_dg").datagrid({
-            url:"skuInfoListBySpu?spuId="+spuId
+            url: "skuInfoListBySpu?spuId=" + spuId
         });
     }
 
     function initSkuListDatagrid(spuId) {
         $("#skulist_dg").datagrid({
-            url:"skuInfoListBySpu?spuId="+spuId
+            url: "skuInfoListBySpu?spuId=" + spuId
         });
     }
 </script>
