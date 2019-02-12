@@ -9,4 +9,6 @@ public interface OrderService {
     boolean checkTradeCode(String tradeCode, String userId);
 
     void savaOrder(OrderInfo orderInfo);
+
+    OrderInfo getOrderByOutTradeNo(String outTradeNo);
 }

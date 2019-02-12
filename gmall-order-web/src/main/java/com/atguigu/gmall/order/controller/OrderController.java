@@ -111,7 +111,7 @@ public class OrderController {
 
             // 删除购物车中已经保存订单数据
             // cartService.delCartByIds(delCartIds);
-            return "pay";
+            return "redirect:http://payment.gmall.com:8090/paymentIndex?outTradeNo="+outTradeNo+"&totalAmount="+getMySum(cartListFromCacah);
         } else {
             return "tradeFail";
         }
